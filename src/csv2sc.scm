@@ -1,4 +1,9 @@
+#!/usr/bin/guile \
+-e main -s
+!#
+
 (use-modules (rnrs io ports))
+(use-modules (ice-9 getopt-long))
 
 (define (csv-error msg)
   "Raise a csv-error."
@@ -99,4 +104,55 @@ to the standard output."
             (iter (1+ row-num)))))
     (iter 1))
 
-(csv->sc #\, #\" #f #f #f)
+(define (main args)
+
+  (define (char-arg arg)
+    (if (char? arg)
+        arg
+        (and (string? arg)
+             (= (string-length arg) 1)
+             (string-ref arg 0))))
+
+  (define option-spec
+    `((field-sep      (single-char #\s) (value #t) (predicate ,char-arg))
+      (decimal-sep    (single-char #\d) (value #t) (predicate ,char-arg))
+      (quotation-char (single-char #\q) (value #t) (predicate ,char-arg))
+      (ignore-ws      (single-char #\w) (value #f))
+      (right-align    (single-char #\r) (value #f))
+      (help           (single-char #\h) (value #f))))
+
+  (define options (getopt-long args option-spec))
+
+  (let* ((field-sep (char-arg (option-ref options 'field-sep #\,)))
+         (decimal-sep (char-arg (option-ref options 'decimal-sep #f)))
+         (quotation-char (char-arg (option-ref options 'quotation-char #f)))
+         (ignore-ws (option-ref options 'ignore-ws #f))
+         (right-align (option-ref options 'right-align #f))
+         (help (option-ref options 'help #f)))
+    (cond
+     ((option-ref options 'help #f)
+      (display "\
+Usage: csv2sc [OPTION]...
+Read CSV data from the standard input and write it in SC (\"spreadsheet
+calculator\") format to the standard output.
+
+  -s, --field-sep=CHAR      use CHAR as field separator (\",\" by default)
+  -d, --decimal-sep=CHAR    use CHAR as decimal separator (\".\" by default)
+  -q, --quotation-char=CHAR use CHAR as quotation character
+  -w, --ignore-ws           ignore whitespace
+  -r, --right-align         right-justify strings
+  -h, --help                display this help and exit
+"))
+     ((char=? field-sep (or decimal-sep #\.))
+      (format (current-error-port)
+              "ERROR: decimal separator clashes with field separator\n"))
+     ((and quotation-char
+           (char=? quotation-char field-sep))
+      (format (current-error-port)
+              "ERROR: quotation character clashes with field separator\n"))
+     ((and quotation-char
+           (char=? quotation-char (or decimal-sep #\.)))
+      (format (current-error-port)
+              "ERROR: quotation character clashes with decimal separator\n"))
+     (else
+      (csv->sc field-sep quotation-char ignore-ws decimal-sep right-align)))))
