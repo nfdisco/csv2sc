@@ -7,7 +7,15 @@ Description
 This program reads CSV data from the standard input and writes it in
 SC ("spreadsheet calculator") format to the standard output.
 
-Dependencies
-------------
+It is written in GNU Guile.
 
-GNU Guile.
+Installing
+----------
+
+To build a Debian package, which can be installed with dpkg, use
+
+$ dpkg-buildpackage -us -uc -b
+
+Otherwise,
+
+$ ./configure && make && make install
