@@ -194,7 +194,7 @@ calculator\") format to the standard output.
 
 (define (main args)
   "Call apply-command-line-arguments."
-  (parameterize ((program-name (car args)))
+  (parameterize ((program-name (basename (car args))))
                 (apply-command-line-arguments args)))
 
 ;; Local Variables:
