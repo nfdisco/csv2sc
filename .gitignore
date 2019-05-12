@@ -1,0 +1,10 @@
+autom4te.cache/
+**/Makefile.in
+**/Makefile
+config.*
+configure
+aclocal.m4
+install-sh
+missing
+
+src/csv2sc
