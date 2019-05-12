@@ -1,0 +1,13 @@
+csv2sc
+======
+
+Description
+-----------
+
+This program reads CSV data from the standard input and writes it in
+SC ("spreadsheet calculator") format to the standard output.
+
+Dependencies
+------------
+
+GNU Guile.
