@@ -184,4 +184,7 @@ calculator\") format to the standard output.
   (parameterize ((program-name (car args)))
                 (apply-command-line-arguments args)))
 
-
+;; Local Variables:
+;; mode: scheme
+;; scheme-program-name: "guile"
+;; End:
