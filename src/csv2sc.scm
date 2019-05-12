@@ -5,6 +5,21 @@
 (use-modules (rnrs io ports))
 (use-modules (ice-9 getopt-long))
 
+(define program-name (make-parameter "csv2sc"))
+
+(define (message port suffix fmt . args)
+  "Write message, prepended with the program name, to PORT."
+  (format port "~a: ~a~a\n" (program-name) suffix (apply format #f fmt args)))
+
+(define (fatal-error fmt . args)
+  "Write message to the standard error and exit."
+  (apply message (current-error-port) "ERROR: " fmt args)
+  (exit 1))
+
+(define (warning fmt . args)
+  "Write warning message to the standard error."
+  (apply message (current-error-port) "WARNING: " fmt args))
+
 (define (csv-error msg)
   "Raise a csv-error."
   (throw 'csv-error msg))
@@ -97,10 +112,7 @@ to the standard output."
                    (lambda ()
                      (put-cells line))
                    (lambda (key msg)
-                     (format (current-error-port)
-                             "warning: skipping line no. ~A: ~A\n"
-                             row-num
-                             msg)))
+                     (warning "skipping line no. ~A: ~A\n" row-num msg)))
             (iter (1+ row-num)))))
     (iter 1))
 
@@ -123,15 +135,17 @@ to the standard output."
 
   (define options (getopt-long args option-spec))
 
-  (let* ((field-sep (char-arg (option-ref options 'field-sep #\,)))
-         (decimal-sep (char-arg (option-ref options 'decimal-sep #f)))
-         (quotation-char (char-arg (option-ref options 'quotation-char #f)))
-         (ignore-ws (option-ref options 'ignore-ws #f))
-         (right-align (option-ref options 'right-align #f))
-         (help (option-ref options 'help #f)))
-    (cond
-     ((option-ref options 'help #f)
-      (display "\
+  (parameterize
+   ((program-name (car args)))
+   (let* ((field-sep (char-arg (option-ref options 'field-sep #\,)))
+          (decimal-sep (char-arg (option-ref options 'decimal-sep #f)))
+          (quotation-char (char-arg (option-ref options 'quotation-char #f)))
+          (ignore-ws (option-ref options 'ignore-ws #f))
+          (right-align (option-ref options 'right-align #f))
+          (help (option-ref options 'help #f)))
+     (cond
+      ((option-ref options 'help #f)
+       (display "\
 Usage: csv2sc [OPTION]...
 Read CSV data from the standard input and write it in SC (\"spreadsheet
 calculator\") format to the standard output.
@@ -143,16 +157,13 @@ calculator\") format to the standard output.
   -r, --right-align         right-justify strings
   -h, --help                display this help and exit
 "))
-     ((char=? field-sep (or decimal-sep #\.))
-      (format (current-error-port)
-              "ERROR: decimal separator clashes with field separator\n"))
-     ((and quotation-char
-           (char=? quotation-char field-sep))
-      (format (current-error-port)
-              "ERROR: quotation character clashes with field separator\n"))
-     ((and quotation-char
-           (char=? quotation-char (or decimal-sep #\.)))
-      (format (current-error-port)
-              "ERROR: quotation character clashes with decimal separator\n"))
-     (else
-      (csv->sc field-sep quotation-char ignore-ws decimal-sep right-align)))))
+      ((char=? field-sep (or decimal-sep #\.))
+       (fatal-error "decimal separator clashes with field separator"))
+      ((and quotation-char
+            (char=? quotation-char field-sep))
+       (fatal-error "quotation character clashes with field separator"))
+      ((and quotation-char
+            (char=? quotation-char (or decimal-sep #\.)))
+       (fatal-error "quotation character clashes with decimal separator"))
+      (else
+       (csv->sc field-sep quotation-char ignore-ws decimal-sep right-align))))))
