@@ -166,6 +166,8 @@ calculator\") format to the standard output.
      ((and quotation-char
            (char=? quotation-char (or decimal-sep #\.)))
       (fatal-error "quotation character clashes with decimal separator"))
+     ((not (null? (option-ref options '() #f)))
+      (fatal-error "non-option argument"))
      (else
       (csv->sc field-sep quotation-char ignore-ws decimal-sep right-align)))))
 
