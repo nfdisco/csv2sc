@@ -116,8 +116,8 @@ to the standard output."
             (iter (1+ row-num)))))
     (iter 1))
 
-(define (main args)
-
+(define (apply-command-line-arguments args)
+  "Apply command-line arguments to csv->sc."
   (define (char-arg arg)
     (if (char? arg)
         arg
@@ -135,18 +135,9 @@ to the standard output."
 
   (define options (getopt-long args option-spec))
 
-  (parameterize
-   ((program-name (car args)))
-   (let* ((field-sep (char-arg (option-ref options 'field-sep #\,)))
-          (decimal-sep (char-arg (option-ref options 'decimal-sep #f)))
-          (quotation-char (char-arg (option-ref options 'quotation-char #f)))
-          (ignore-ws (option-ref options 'ignore-ws #f))
-          (right-align (option-ref options 'right-align #f))
-          (help (option-ref options 'help #f)))
-     (cond
-      ((option-ref options 'help #f)
-       (display "\
-Usage: csv2sc [OPTION]...
+  (define (display-help)
+    (format #t "Usage: ~a [OPTION]...\n" (program-name))
+    (format #t "\
 Read CSV data from the standard input and write it in SC (\"spreadsheet
 calculator\") format to the standard output.
 
@@ -157,13 +148,30 @@ calculator\") format to the standard output.
   -r, --right-align         right-justify strings
   -h, --help                display this help and exit
 "))
-      ((char=? field-sep (or decimal-sep #\.))
-       (fatal-error "decimal separator clashes with field separator"))
-      ((and quotation-char
-            (char=? quotation-char field-sep))
-       (fatal-error "quotation character clashes with field separator"))
-      ((and quotation-char
-            (char=? quotation-char (or decimal-sep #\.)))
-       (fatal-error "quotation character clashes with decimal separator"))
-      (else
-       (csv->sc field-sep quotation-char ignore-ws decimal-sep right-align))))))
+  
+  (let* ((field-sep (char-arg (option-ref options 'field-sep #\,)))
+         (decimal-sep (char-arg (option-ref options 'decimal-sep #f)))
+         (quotation-char (char-arg (option-ref options 'quotation-char #f)))
+         (ignore-ws (option-ref options 'ignore-ws #f))
+         (right-align (option-ref options 'right-align #f))
+         (help (option-ref options 'help #f)))
+    (cond
+     ((option-ref options 'help #f)
+      (display-help))
+     ((char=? field-sep (or decimal-sep #\.))
+      (fatal-error "decimal separator clashes with field separator"))
+     ((and quotation-char
+           (char=? quotation-char field-sep))
+      (fatal-error "quotation character clashes with field separator"))
+     ((and quotation-char
+           (char=? quotation-char (or decimal-sep #\.)))
+      (fatal-error "quotation character clashes with decimal separator"))
+     (else
+      (csv->sc field-sep quotation-char ignore-ws decimal-sep right-align)))))
+
+(define (main args)
+  "Call apply-command-line-arguments."
+  (parameterize ((program-name (car args)))
+                (apply-command-line-arguments args)))
+
+
