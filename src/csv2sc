@@ -1,0 +1,3 @@
+#!/bin/sh
+exec guile --no-auto-compile -e '(@ (csv2sc cli) main)' -s "$0" "$@"
+!#

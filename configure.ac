@@ -1,21 +1,18 @@
-#                                               -*- Autoconf -*-
-# Process this file with autoconf to produce a configure script.
+AC_INIT([csv2sc], [0.1])
+AC_CONFIG_AUX_DIR([build-aux])
+AC_CONFIG_MACRO_DIR([m4])
+AM_INIT_AUTOMAKE([-Wall -Werror foreign])
 
-AC_PREREQ([2.69])
-AC_INIT([csv2sc], [0.9], [nr9@posteo.de])
-AM_INIT_AUTOMAKE([foreign])
-
-# Checks for programs.
-AC_PROG_LN_S
-
-# Checks for libraries.
-
-# Checks for header files.
-
-# Checks for typedefs, structures, and compiler characteristics.
-
-# Checks for library functions.
+GUILE_PKG
+GUILE_PROGS
+GUILE_SITE_DIR
+if test "x$GUILD" = "x"; then
+   AC_MSG_ERROR(['guild' binary not found.])
+fi
 
 AC_CONFIG_FILES([Makefile
+                 module/Makefile
                  src/Makefile])
+AC_CONFIG_FILES([pre-inst-env], [chmod +x pre-inst-env])
+
 AC_OUTPUT
