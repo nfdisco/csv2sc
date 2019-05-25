@@ -105,5 +105,5 @@ to the standard output."
               (lambda (key msg)
                 (msg-warning "skipping line no. ~A: ~A\n" row-num msg)))
        (iter (1+ row-num)))))
-  (iter 1))
+  (iter 0))
 
