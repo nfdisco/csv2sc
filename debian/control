@@ -2,11 +2,11 @@ Source: csv2sc
 Maintainer: nfdisco <nr9@posteo.de>
 Section: misc
 Priority: optional
-Build-Depends: debhelper (>= 9)
+Build-Depends: debhelper (>= 10), guile-2.0-dev
 
 Package: csv2sc
 Architecture: all
-Depends: guile | guile-2.0 | guile-2.2
+Depends: guile-2.0
 Suggests: sc
 Description: CSV to Spreadsheet Calculator format converter
  This program reads CSV data from the standard input and writes it in
