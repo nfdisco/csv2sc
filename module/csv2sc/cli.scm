@@ -24,7 +24,7 @@ calculator\") format to the standard output.
   -w, --ignore-ws           ignore whitespace
   -r, --right-align         right-justify strings
   -h, --help                display this help and exit
-") (program-name))
+" (program-name)))
 
 (define option-spec
   `((field-sep      (single-char #\s) (value #t) (predicate ,char-arg))
