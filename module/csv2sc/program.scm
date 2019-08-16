@@ -3,5 +3,5 @@
 
 (define program-name (make-parameter "csv2sc"))
 
-(define csv2sc-version "1.9")
+(define csv2sc-version "0.9")
 
